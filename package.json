@@ -1,0 +1,15 @@
+{
+  "name": "gulp-paige",
+  "version": "0.1.0",
+  "description": "Run Paige with gulp!",
+  "main": "index.js",
+  "author": {
+    "name": "Kai Cataldo",
+    "email": "cataldo@adobe.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "be-paige": "^0.3.2",
+    "gulp-util": "^3.0.6"
+  }
+}
