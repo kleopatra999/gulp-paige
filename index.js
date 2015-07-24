@@ -1,29 +1,32 @@
 'use strict';
 
-var exec = require('child_process').exec,
+var spawn = require('child_process').spawn,
+    readline = require('readline'),
     gutil = require('gulp-util');
-
-var paigeBin = './node_modules/.bin/paige';
 
 module.exports = function(config) {
   runPaige(config);
 };
 
 function runPaige(config) {
-  var command,
-      runPaigeCommand,
-      address,
-      files,
-      suite,
-      target,
+  var address = config.address,
+      files = config.files,
       webdriverAddress,
       webdriverBrowser,
       webdriverPlatform,
-      webdriverVersion;
+      webdriverVersion,
+      paigeCommand,
+      runPaigeCommand,
+      readlinePaige;
 
-  address = config.address;
   if (!address) {
     gutil.log(gutil.colors.red('Required application address missing.'));
+    return;
+  }
+
+  if (!files) {
+    gutil.log(gutil.colors.red('Required test files missing.'));
+    return;
   }
 
   webdriverAddress = config.webdriverUrl || 'local';
@@ -38,9 +41,9 @@ function runPaige(config) {
   gutil.log("WebDriver version: " + webdriverVersion);
   gutil.log('');
   console.log('');
-  console.log('        |\\');
-  console.log('        | \\');
-  console.log('        |  \\ （ヽ,,');
+  console.log('         |\\');
+  console.log('         | \\');
+  console.log('         |  \\（ヽ,,');
   console.log('　＿,,,,,|,))))ヽ,i彡');
   console.log('（・ |　　　●    彡ﾐ');
   console.log(' ＞イ|　　　　　  彡ﾐ');
@@ -53,48 +56,38 @@ function runPaige(config) {
     gutil.log(gutil.colors.red('Cannot grep and run a suite at the same time.'));
   }
 
-  command = genPaigeCommand(config);
+  paigeCommand = genPaigeCommand(config);
 
-  runPaigeCommand = exec(command,
-    function(err, stdout, stderr) {
-      gutil.log(stdout);
-      gutil.log(gutil.colors.red(stderr));
-      if (err !== null) {
-        gutil.log(gutil.colors.red(err));
-      }
+  runPaigeCommand = spawn(paigeCommand.command, paigeCommand.args);
+
+  readlinePaige = readline.createInterface({
+    input: runPaigeCommand.stdout,
+    terminal : false
+  });
+
+  readlinePaige.on('line', function(line) {
+    console.log(line);
+  });
+
+  runPaigeCommand.on('close', function (code) {
+    if (code !== 0) {
+      gutil.log(gutil.colors.red('Paige exited with code ' + code));
+    }
+    readlinePaige.close();
   });
 }
 
 function genPaigeCommand(options) {
-  var command = options.command || 'local',
+  var command = 'local',
       hostAddr = options.address,
       dir = options.files,
       suite = options.suite,
       mochaOpts,
       paigeOpts,
       parallelOpts,
-      remoteConfigs,
-      webdriverAddr,
       paigeCommand;
 
   hostAddr = "" + (!/[a-z](?:[a-z0-9+\-.])*:\/\//i.test(hostAddr) ? 'http://' : void 0) + hostAddr;
-  dir = "'" + dir + "'";
-
-  if (command === 'remote') {
-    webdriverAddr = options.webdriverUrl;
-
-    if (!webdriverAddr) {
-      gutil.log(gutil.colors.red("Required webdriver address missing."));
-    }
-
-    webdriverAddr = "" + (!/[a-z](?:[a-z0-9+\-.])*:\/\//i.test(webdriverAddr) ? 'http://' : void 0) + webdriverAddr;
-  }
-
-  remoteConfigs = [
-    options.webdriverPlatform ? "--webdriverPlatform " + options.webdriverPlatform : void 0,
-    options.webdriverBrowser ? "--webdriverBrowser " + options.webdriverBrowser : void 0,
-    options.webdriverVersion ? "--webdriverVersion " + options.webdriverVersion : void 0
-  ].join(' ');
 
   mochaOpts = [
     options.bail ? "--bail" : void 0,
@@ -113,20 +106,20 @@ function genPaigeCommand(options) {
     parallelOpts = "-p";
   }
 
-  paigeCommand = [
-    paigeBin,
-    command,
-    hostAddr,
-    webdriverAddr,
-    dir,
-    paigeOpts || '',
-    remoteConfigs || '',
-    mochaOpts || '',
-    parallelOpts || '',
-    '--colors'
-  ];
+  paigeCommand = {
+    command: './node_modules/.bin/paige',
+    args: [
+      command,
+      hostAddr,
+      dir,
+      paigeOpts || '',
+      mochaOpts || '',
+      parallelOpts || '',
+      '--colors'
+    ]
+  };
 
-  gutil.log("Running command: " + (paigeCommand.join(' ')));
+  gutil.log("Running command: " + gutil.colors.cyan(paigeCommand.command + ' ' + (paigeCommand.args.join(' '))));
 
-  return paigeCommand.join(' ');
+  return paigeCommand;
 }
