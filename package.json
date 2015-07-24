@@ -9,7 +9,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "be-paige": "^0.3.2",
     "gulp-util": "^3.0.6"
+  },
+  "peerDependencies": {
+    "be-paige": "^0.3.2"
   }
 }
