@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "be-paige": "^0.3.4",
     "gulp-util": "^3.0.6"
   },
   "repository": {
@@ -16,4 +17,3 @@
     "url": "https://github.com/behance/gulp-paige.git"
   }
 }
-

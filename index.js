@@ -87,8 +87,6 @@ function genPaigeCommand(options) {
       parallelOpts,
       paigeCommand;
 
-  hostAddr = "" + (!/[a-z](?:[a-z0-9+\-.])*:\/\//i.test(hostAddr) ? 'http://' : void 0) + hostAddr;
-
   mochaOpts = [
     options.bail ? "--bail" : void 0,
     "--slow 30000",
