@@ -1,6 +1,6 @@
 'use strict';
 
-var spawn = require('child_process').spawn,
+var spawn = require('child_process').spawnSync,
     readline = require('readline'),
     gutil = require('gulp-util');
 
@@ -58,23 +58,8 @@ function runPaige(config) {
 
   paigeCommand = genPaigeCommand(config);
 
-  runPaigeCommand = spawn(paigeCommand.command, paigeCommand.args);
+  runPaigeCommand = spawn(paigeCommand.command, paigeCommand.args, { stdio: 'inherit' });
 
-  readlinePaige = readline.createInterface({
-    input: runPaigeCommand.stdout,
-    terminal : false
-  });
-
-  readlinePaige.on('line', function(line) {
-    console.log(line);
-  });
-
-  runPaigeCommand.on('close', function (code) {
-    if (code !== 0) {
-      gutil.log(gutil.colors.red('Paige exited with code ' + code));
-    }
-    readlinePaige.close();
-  });
 }
 
 function genPaigeCommand(options) {
