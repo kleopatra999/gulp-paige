@@ -1,7 +1,6 @@
 'use strict';
 
 var spawn = require('child_process').spawnSync,
-    readline = require('readline'),
     gutil = require('gulp-util');
 
 module.exports = function(config) {
@@ -16,8 +15,7 @@ function runPaige(config) {
       webdriverPlatform,
       webdriverVersion,
       paigeCommand,
-      runPaigeCommand,
-      readlinePaige;
+      runPaigeCommand;
 
   if (!address) {
     gutil.log(gutil.colors.red('Required application address missing.'));
