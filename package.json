@@ -1,6 +1,6 @@
 {
   "name": "gulp-paige",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Run Paige with gulp!",
   "scripts": {
     "dev": "babel src --watch --out-file index.js"
